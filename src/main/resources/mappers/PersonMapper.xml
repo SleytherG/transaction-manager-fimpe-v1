@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sgcp.transactions.manager.fimpe.person.repository.PersonMapper">
+
+    <resultMap id="PersonDTOResultMap" type="sgcp.transactions.manager.fimpe.operation.dto.PersonDTO">
+        <id property="id" column="ID_PERSON" />
+        <result property="firstName" column="FIRST_NAME" />
+        <result property="lastName" column="LAST_NAME" />
+        <result property="email" column="EMAIL" />
+        <result property="phone" column="PHONE" />
+
+        <association property="personType" javaType="sgcp.transactions.manager.fimpe.operation.dto.PersonTypeDTO">
+            <id property="id" column="ID_PERSON_TYPE"/>
+            <result property="namePersonType" column="NAME_PERSON_TYPE"/>
+        </association>
+
+    </resultMap>
+
+    <select id="findById" resultMap="PersonDTOResultMap">
+        SELECT
+            P.ID_PERSON             AS ID_PERSON,
+            P.FIRST_NAME            AS FIRST_NAME,
+            P.LAST_NAME             AS LAST_NAME,
+            P.EMAIL                 AS EMAIL,
+            P.PHONE                 AS PHONE,
+            PT1.ID_PERSON_TYPE      AS ID_PERSON_TYPE,
+            PT1.NAME_PERSON_TYPE    AS NAME_PERSON_TYPE
+        FROM PERSON P
+        LEFT JOIN PERSON_TYPE PT1 ON P.ID_PERSON_TYPE = PT1.ID_PERSON_TYPE
+        WHERE P.ID_PERSON = #{idPerson}
+    </select>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO person (FIRST_NAME, LAST_NAME, EMAIL, PHONE, ID_PERSON_TYPE)
+        VALUES (#{firstName}, #{lastName}, #{email}, #{phone}, #{idPersonType})
+    </insert>
+
+    <select id="findAllByPersonType" resultMap="PersonDTOResultMap">
+        SELECT
+            P.ID_PERSON             AS ID_PERSON,
+            P.FIRST_NAME            AS FIRST_NAME,
+            P.LAST_NAME             AS LAST_NAME,
+            P.EMAIL                 AS EMAIL,
+            P.PHONE                 AS PHONE,
+            PT1.ID_PERSON_TYPE      AS ID_PERSON_TYPE,
+            PT1.NAME_PERSON_TYPE    AS NAME_PERSON_TYPE
+        FROM PERSON P
+                 LEFT JOIN PERSON_TYPE PT1 ON P.ID_PERSON_TYPE = PT1.ID_PERSON_TYPE
+        WHERE P.ID_PERSON_TYPE = #{idPersonType}
+    </select>
+
+    <update id="update">
+        UPDATE person
+        SET
+            FIRST_NAME = #{firstName},
+            LAST_NAME = #{lastName},
+            EMAIL = #{email},
+            PHONE = #{phone},
+            ID_PERSON_TYPE = #{idPersonType}
+        WHERE ID_PERSON = #{id}
+    </update>
+
+</mapper>

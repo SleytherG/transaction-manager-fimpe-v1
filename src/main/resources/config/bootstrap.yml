@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: transactions-manager-fimpe-v1
+  datasource:
+    url: jdbc:mysql://localhost:3306/fimpeDB
+    username: root
+    password: 20051996
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    properties:
+      hibernate:
+        format_sql: true
+
+mybatis:
+  config-location: classpath:mybatis-config.xml
+  mapper-locations: classpath:mappers/*.xml
+  type-aliases-package: sgcp.transactions.manager.fimpe.model
+
+
+
+
+
+server:
+  port: 9000
+
+
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+

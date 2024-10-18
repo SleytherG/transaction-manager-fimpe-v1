@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sgcp.transactions.manager.fimpe.operation.repository.OperationMapper">
+
+    <resultMap id="PersonDTOResultMap" type="sgcp.transactions.manager.fimpe.operation.dto.PersonDTO">
+        <id property="id" column="ID_PERSON" />
+        <result property="firstName" column="FIRST_NAME" />
+        <result property="lastName" column="LAST_NAME" />
+        <result property="email" column="EMAIL" />
+        <result property="phone" column="PHONE" />
+
+        <association property="personType" javaType="sgcp.transactions.manager.fimpe.operation.dto.PersonTypeDTO">
+            <id property="id" column="ID_PERSON_TYPE"/>
+            <result property="namePersonType" column="NAME_PERSON_TYPE"/>
+        </association>
+
+    </resultMap>
+
+    <resultMap id="OperationDTOResultMap" type="sgcp.transactions.manager.fimpe.operation.dto.OperationDTO">
+        <id property="id" column="ID_OPERATION" />
+        <result property="operationDate" column="OPERATION_DATE" />
+        <result property="operationTime" column="OPERATION_TIME" />
+        <result property="amount" column="AMOUNT" />
+
+        <association property="collaborate" javaType="sgcp.transactions.manager.fimpe.operation.dto.PersonDTO">
+            <id property="id" column="ID_COLLABORATE"/>
+            <result property="firstName" column="FIRST_NAME_COLLABORATE"/>
+            <result property="lastName" column="LAST_NAME_COLLABORATE"/>
+            <result property="email" column="EMAIL_COLLABORATE"/>
+            <result property="phone" column="PHONE_COLLABORATE"/>
+
+            <association property="personType" javaType="sgcp.transactions.manager.fimpe.operation.dto.PersonTypeDTO">
+                <id property="id" column="ID_PERSON_TYPE_COLLABORATE"/>
+                <result property="namePersonType" column="NAME_PERSON_TYPE_COLLABORATE"/>
+            </association>
+        </association>
+
+        <association property="affiliate" javaType="sgcp.transactions.manager.fimpe.operation.dto.PersonDTO">
+            <id property="id" column="ID_AFFILIATE"/>
+            <result property="firstName" column="FIRST_NAME_AFFILIATE"/>
+            <result property="lastName" column="LAST_NAME_AFFILIATE"/>
+            <result property="email" column="EMAIL_AFFILIATE"/>
+            <result property="phone" column="PHONE_AFFILIATE"/>
+
+            <association property="personType" javaType="sgcp.transactions.manager.fimpe.operation.dto.PersonTypeDTO">
+                <id property="id" column="ID_PERSON_TYPE_AFFILIATE"/>
+                <result property="namePersonType" column="NAME_PERSON_TYPE_AFFILIATE"/>
+            </association>
+        </association>
+
+
+
+
+        <association property="operationType" javaType="sgcp.transactions.manager.fimpe.operation.dto.OperationTypeDTO">
+            <id property="id" column="ID_OPERATION_TYPE" />
+            <result property="nameOperationType" column="NAME_OPERATION_TYPE" />
+        </association>
+
+    </resultMap>
+
+    <sql id="commonDataOfAnOperation">
+            OP.ID_OPERATION             AS ID_OPERATION,
+            OP.OPERATION_DATE           AS OPERATION_DATE,
+            OP.OPERATION_TIME           AS OPERATION_TIME,
+            OP.AMOUNT                   AS AMOUNT,
+            P1.ID_PERSON                AS ID_COLLABORATE,
+            P1.FIRST_NAME               AS FIRST_NAME_COLLABORATE,
+            P1.LAST_NAME                AS LAST_NAME_COLLABORATE,
+            P1.EMAIL                    AS EMAIL_COLLABORATE,
+            P1.PHONE                    AS PHONE_COLLABORATE,
+            P2.ID_PERSON                AS ID_AFFILIATE,
+            P2.FIRST_NAME               AS FIRST_NAME_AFFILIATE,
+            P2.LAST_NAME                AS LAST_NAME_AFFILIATE,
+            P2.EMAIL                    AS EMAIL_AFFILIATE,
+            P2.PHONE                    AS PHONE_AFFILIATE,
+            OT.ID_OPERATION_TYPE        AS ID_OPERATION_TYPE,
+            OT.NAME_OPERATION_TYPE      AS NAME_OPERATION_TYPE,
+            PT1.ID_PERSON_TYPE          AS ID_PERSON_TYPE_COLLABORATE,
+            PT1.NAME_PERSON_TYPE        AS NAME_PERSON_TYPE_COLLABORATE,
+            PT2.ID_PERSON_TYPE          AS ID_PERSON_TYPE_AFFILIATE,
+            PT2.NAME_PERSON_TYPE        AS NAME_PERSON_TYPE_AFFILIATE
+    </sql>
+
+
+    <select id="findById" resultMap="OperationDTOResultMap">
+
+        SELECT
+            <include refid="commonDataOfAnOperation" />
+        FROM OPERATION OP
+                 LEFT JOIN PERSON P1 ON OP.ID_COLLABORATE = P1.ID_PERSON
+                 LEFT JOIN PERSON P2 ON OP.ID_AFFILIATE = P2.ID_PERSON
+                 LEFT JOIN OPERATION_TYPE OT ON OP.ID_OPERATION_TYPE = OT.ID_OPERATION_TYPE
+                 LEFT JOIN PERSON_TYPE PT1 ON P1.ID_PERSON_TYPE = PT1.ID_PERSON_TYPE
+                 LEFT JOIN PERSON_TYPE PT2 ON P2.ID_PERSON_TYPE = PT2.ID_PERSON_TYPE
+        WHERE OP.ID_OPERATION = #{id}
+    </select>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO operation (OPERATION_DATE, OPERATION_TIME, AMOUNT, ID_COLLABORATE, ID_AFFILIATE, ID_OPERATION_TYPE, ID_AFFILIATE)
+        VALUES (#{operationDate}, #{operationTime}, #{amount}, #{idCollaborate}, #{idAffiliate}, #{idOperationType}, #{idAffiliate})
+    </insert>
+
+    <update id="update">
+        UPDATE operation
+        SET
+            OPERATION_DATE = #{operationDate},
+            OPERATION_TIME = #{operationTime},
+            AMOUNT = #{amount},
+            ID_COLLABORATE = #{idCollaborate},
+            ID_AFFILIATE = #{idAffiliate},
+            ID_OPERATION_TYPE = #{idOperationType},
+            ID_AFFILIATE = #{idAffiliate}
+        WHERE ID_OPERATION = #{id}
+    </update>
+
+    <select id="findAllOperationsByOperationTypeAndCollaborator" resultMap="OperationDTOResultMap">
+        SELECT
+            <include refid="commonDataOfAnOperation" />
+        FROM OPERATION OP
+                 LEFT JOIN PERSON P1 ON OP.ID_COLLABORATE = P1.ID_PERSON
+                 LEFT JOIN PERSON P2 ON OP.ID_AFFILIATE = P2.ID_PERSON
+                 LEFT JOIN OPERATION_TYPE OT ON OP.ID_OPERATION_TYPE = OT.ID_OPERATION_TYPE
+                 LEFT JOIN PERSON_TYPE PT1 ON P1.ID_PERSON_TYPE = PT1.ID_PERSON_TYPE
+                 LEFT JOIN PERSON_TYPE PT2 ON P2.ID_PERSON_TYPE = PT2.ID_PERSON_TYPE
+        WHERE OP.ID_OPERATION_TYPE = #{idOperationType}
+        AND OP.ID_COLLABORATE = #{idCollaborator}
+    </select>
+
+    <select id="findAllOperationsByACollaborator" resultMap="OperationDTOResultMap">
+        SELECT
+            <include refid="commonDataOfAnOperation" />
+        FROM OPERATION OP
+                 LEFT JOIN PERSON P1 ON OP.ID_COLLABORATE = P1.ID_PERSON
+                 LEFT JOIN PERSON P2 ON OP.ID_AFFILIATE = P2.ID_PERSON
+                 LEFT JOIN OPERATION_TYPE OT ON OP.ID_OPERATION_TYPE = OT.ID_OPERATION_TYPE
+                 LEFT JOIN PERSON_TYPE PT1 ON P1.ID_PERSON_TYPE = PT1.ID_PERSON_TYPE
+                 LEFT JOIN PERSON_TYPE PT2 ON P2.ID_PERSON_TYPE = PT2.ID_PERSON_TYPE
+        WHERE OP.ID_COLLABORATE = #{idCollaborator}
+    </select>
+
+</mapper>
